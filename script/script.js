@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const closeModal = document.querySelector('#closeModal');
     const questionTitle = document.querySelector('#question');
     const formAnswers = document.querySelector('#formAnswers'); 
+    const nextButton = document.querySelector('#next');
+    const prevButton = document.querySelector('#prev');
 
     btnOpenModal.addEventListener('click', () => {
         modalBlock.classList.add('d-block');
@@ -15,32 +17,47 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     const playTest = () => {
-        const renderQuestions = () => {
-            const imgStandart = './image/burger.png';
-            const nameStandart = 'Стандарт';
-            const imgBlack = './image/burgerBlack.png';
-            const nameBlack = 'Черный';
+        let numberQuestion = 0;
 
-            questionTitle.textContent = "Какого цвета бургер вы хотите?";
+        const renderAnswers = (index) => {
+            questions[index].answers.forEach(answer => {
+                const answerItem = document.createElement('div');
 
-            formAnswers.innerHTML = `
-                <div class="answers-item d-flex flex-column">
-                    <input type="radio" id="answerItem1" name="answer" class="d-none">
-                    <label for="answerItem1" class="d-flex flex-column justify-content-between">
-                    <img class="answerImg" src="${imgStandart}" alt="burger">
-                    <span>${nameStandart}</span>
-                    </label>
-                </div>
-                <div class="answers-item d-flex justify-content-center">
-                    <input type="radio" id="answerItem2" name="answer" class="d-none">
-                    <label for="answerItem2" class="d-flex flex-column justify-content-between">
-                    <img class="answerImg" src="${imgBlack}" alt="burger">
-                    <span>${nameBlack}</span>
-                    </label>
-                </div>
-            `;
+                answerItem.classList.add('answers-item', 'd-flex', 'flex-column');
+    
+                answerItem.innerHTML = `
+                    <div class="answers-item d-flex flex-column">
+                        <input type="${questions[index].type}" id="${answer.title}" name="answer" class="d-none">
+                        <label for="${answer.title}" class="d-flex flex-column justify-content-between">
+                        <img class="answerImg" src="${answer.url}" alt="burger">
+                        <span>${answer.title}</span>
+                        </label>
+                    </div>
+                `;
+
+                formAnswers.appendChild(answerItem);
+            });
         }
 
-        renderQuestions();
+        const renderQuestions = (indexQuestion) => {
+            formAnswers.innerHTML = ``;
+
+            questionTitle.innerHTML = `${questions[indexQuestion].question}`;
+
+            renderAnswers(indexQuestion);
+        }
+
+        renderQuestions(numberQuestion);
+
+        nextButton.onclick = () => {
+            numberQuestion++;
+            renderQuestions(numberQuestion);
+        }
+
+        prevButton.onclick = () => {
+            numberQuestion--;
+            renderQuestions(numberQuestion);
+        }
+
     }
 })
