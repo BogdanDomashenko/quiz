@@ -23,10 +23,24 @@ document.addEventListener("DOMContentLoaded", function () {
             questions[index].answers.forEach(answer => {
                 const answerItem = document.createElement('div');
 
+                if(numberQuestion === 0) {
+                    prevButton.style.display = "none";
+                }
+                else {
+                    prevButton.style.display = "block";
+                }
+
+                if(numberQuestion === questions.length-1) {
+                    nextButton.style.display = "none";
+                }
+                else {
+                    nextButton.style.display = "block";
+                }
+
                 answerItem.classList.add('answers-item', 'd-flex', 'flex-column');
     
                 answerItem.innerHTML = `
-                    <div class="answers-item d-flex flex-column">
+                    <div class="answers-item d-flex flex-column ">
                         <input type="${questions[index].type}" id="${answer.title}" name="answer" class="d-none">
                         <label for="${answer.title}" class="d-flex flex-column justify-content-between">
                         <img class="answerImg" src="${answer.url}" alt="burger">
