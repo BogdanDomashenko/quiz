@@ -1,3 +1,19 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js";
+import { getDatabase, ref, child, get, set, push } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCb3dFXLqaMqDenuy1ibA45J8no0JvG0zc",
+    authDomain: "burgerquiz-1b04c.firebaseapp.com",
+    databaseURL: "https://burgerquiz-1b04c-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "burgerquiz-1b04c",
+    storageBucket: "burgerquiz-1b04c.appspot.com",
+    messagingSenderId: "373830021427",
+    appId: "1:373830021427:web:cd536d54b0dcfcfff68e46",
+    measurementId: "G-4CJW3SS59N"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+
 document.addEventListener("DOMContentLoaded", function () {
 
     const btnOpenModal = document.querySelector('#btnOpenModal');
@@ -9,16 +25,33 @@ document.addEventListener("DOMContentLoaded", function () {
     const prevButton = document.querySelector('#prev');
     const sendButton = document.querySelector('#send');
 
+    const getData = () => {
+        formAnswers.textContent = 'LOAD';
+
+        const dbRef = ref(getDatabase());
+
+        get(child(dbRef, 'questions')).then((snapshot) => {
+            if (snapshot.exists()) {
+                playTest(snapshot.val());
+            } else {
+                formAnswers.textContent = 'Ошибка загрузки данных!';
+                console.error("No data available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    }
+
     btnOpenModal.addEventListener('click', () => {
         modalBlock.classList.add('d-block');
-        playTest();
+        getData();
     });
 
     closeModal.addEventListener('click', () => {
         modalBlock.classList.remove('d-block');
     });
 
-    const playTest = () => {
+    const playTest = (questions) => {
 
         const finalAnswers = [];
         let numberQuestion = 0;
@@ -49,6 +82,8 @@ document.addEventListener("DOMContentLoaded", function () {
             switch (true) {
                 case numberQuestion === 0:
                     prevButton.classList.add('d-none');
+                    nextButton.classList.remove('d-none');
+                    sendButton.classList.add('d-none');
                     break;
                 case numberQuestion <= questions.length - 1:
                     prevButton.classList.remove('d-none');
@@ -59,6 +94,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     prevButton.classList.add('d-none');
                     nextButton.classList.add('d-none');
                     sendButton.classList.remove('d-none');
+                    break;
+                case numberQuestion === questions.length + 1:
+                        sendButton.classList.add('d-none');
                     break;
                 default:
                     break;
@@ -75,9 +113,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             if (numberQuestion === questions.length) {
-                nextButton.classList.add('d-none');
-                prevButton.classList.add('d-none');
-                sendButton.classList.remove('d-none');
                 formAnswers.innerHTML = `
                     <div class="mb-3">
                         <label for="numberPhone">Enter your number</label>
@@ -113,10 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
-            console.log(obj);
-
             finalAnswers.push(obj);
-            console.log("🚀 ~ file: script.js ~ line 81 ~ checkAnswer ~ finalAnswers", finalAnswers)
         }
 
         nextButton.onclick = () => {
@@ -131,8 +163,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         sendButton.onclick = () => {
+
             checkAnswer();
             numberQuestion++;
+
+            const contactsRef = ref(getDatabase(), 'contacts');
+
+            push(ref(getDatabase(), 'contacts'), {
+                ...finalAnswers
+            });
+
+
             renderQuestions(numberQuestion);
         }
 
